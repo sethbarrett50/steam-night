@@ -42,7 +42,7 @@ def load_wordlist(path: str | None) -> list[str]:
 
 def crack_password(
     target: str,
-    delay: float = 0.4,
+    delay: float = 0.01,
     wordlist_path: str | None = None,
 ) -> str | None:
     console = Console()

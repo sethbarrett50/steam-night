@@ -9,7 +9,7 @@ HOST      ?= 0.0.0.0
 PORT      ?= 5000
 PASSWORD  ?= dragon
 TARGET    ?= http://127.0.0.1:5000
-DELAY     ?= 0.5
+DELAY     ?= 0.1
 WORDLIST  ?= assets/wordlists/demo_passwords.txt
 
 .PHONY: help sync format check lint test build clean \
