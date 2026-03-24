@@ -54,7 +54,7 @@ run-cyber-server: ## Run the Raspberry Pi cyber demo server
 run-cyber-crack: ## Run the laptop-side dictionary attack demo
 	$(UV) run cyber-crack --target $(TARGET) --delay $(DELAY) --wordlist $(WORDLIST)
 
-run-cs: ## Run the CS demo placeholder
+run-cs: ## Run the CS pattern demo
 	$(UV) run cs-demo
 
 preflight: ## Build package and run metadata checks
