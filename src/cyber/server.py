@@ -91,30 +91,30 @@ class DemoConfig:
 def create_app(config: DemoConfig) -> Flask:
     app = Flask(__name__)
 
-    @app.get("/health")
+    @app.get('/health')
     def health() -> tuple[dict[str, str], int]:
-        return {"status": "ok"}, 200
+        return {'status': 'ok'}, 200
 
-    @app.get("/api/check")
+    @app.get('/api/check')
     def api_check_get() -> tuple[dict[str, str], int]:
-        return {"message": "Use POST with a password."}, 405
+        return {'message': 'Use POST with a password.'}, 405
 
-    @app.post("/api/check")
+    @app.post('/api/check')
     def api_check() -> tuple[dict[str, bool | str], int]:
         data = request.get_json(silent=True) or {}
-        password = str(data.get("password", ""))
+        password = str(data.get('password', ''))
         success = password == config.password
-        return jsonify({"success": success, "password": password}), 200
+        return jsonify({'success': success, 'password': password}), 200
 
-    @app.route("/", methods=["GET", "POST"])
+    @app.route('/', methods=['GET', 'POST'])
     def login() -> str:
-        message = ""
-        if request.method == "POST":
-            password = request.form.get("password", "")
+        message = ''
+        if request.method == 'POST':
+            password = request.form.get('password', '')
             if password == config.password:
-                message = "✅ Access Granted!"
+                message = '✅ Access Granted!'
             else:
-                message = "❌ Nope — try again!"
+                message = '❌ Nope — try again!'
         return render_template_string(HTML_TEMPLATE, message=message)
 
     return app

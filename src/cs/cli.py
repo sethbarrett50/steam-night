@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from cs.demo import run_demo
+
 
 def main() -> None:
-    print("CS demo coming soon.")
+    run_demo()
