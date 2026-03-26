@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import argparse
 
-from cyber.crack import crack_password
-from cyber.server import DemoConfig, create_app
-
 
 def run_server() -> None:
+    from cyber.server import DemoConfig, create_app
+
     parser = argparse.ArgumentParser(description='Run the Raspberry Pi cyber demo server.')
     parser.add_argument('--host', default='0.0.0.0')
     parser.add_argument('--port', type=int, default=5000)
@@ -18,6 +17,8 @@ def run_server() -> None:
 
 
 def run_cracker() -> None:
+    from cyber.crack import crack_password
+
     parser = argparse.ArgumentParser(description='Run the laptop-side dictionary attack demo.')
     parser.add_argument('--target', required=True)
     parser.add_argument('--delay', type=float, default=0.4)

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import json
 import time
 
 from pathlib import Path
-
-import requests
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 from rich.console import Console
 from rich.panel import Panel
@@ -36,6 +37,27 @@ def load_wordlist(path: str | None) -> list[str]:
     return words
 
 
+def _check_password(
+    target: str,
+    password: str,
+    timeout: float = 5.0,
+) -> bool:
+    url = f'{target.rstrip("/")}/api/check'
+    payload = json.dumps({'password': password}).encode('utf-8')
+
+    request = Request(
+        url=url,
+        data=payload,
+        headers={'Content-Type': 'application/json'},
+        method='POST',
+    )
+
+    with urlopen(request, timeout=timeout) as response:
+        body = response.read().decode('utf-8')
+        data = json.loads(body)
+        return bool(data.get('success', False))
+
+
 def crack_password(
     target: str,
     delay: float = 0.01,
@@ -46,27 +68,35 @@ def crack_password(
 
     console.print(
         Panel.fit(
-            '[bold cyan]Starting safe demo dictionary attack[/bold cyan]\nThis is a classroom simulation.',
+            '[bold cyan]🚀 Starting safe demo dictionary attack[/bold cyan]\n'
+            'This is a classroom simulation on your local network.',
             title='Cyber Demo',
         )
     )
 
-    attempts_table = Table(title='Password Attempts')
+    attempts_table = Table(title='🔐 Password Attempts')
     attempts_table.add_column('Attempt #', justify='right')
     attempts_table.add_column('Password Tried')
     attempts_table.add_column('Result')
 
     for index, word in enumerate(words, start=1):
         try:
-            response = requests.post(
-                f'{target.rstrip("/")}/api/check',
-                json={'password': word},
-                timeout=5,
+            success = _check_password(
+                target=target,
+                password=word,
+                timeout=5.0,
             )
-            response.raise_for_status()
-            success = bool(response.json().get('success', False))
-        except requests.RequestException as exc:
-            console.print(f'[bold red]Request failed:[/bold red] {exc}')
+        except HTTPError as exc:
+            console.print(f'[bold red]HTTP request failed:[/bold red] {exc.code} {exc.reason}')
+            return None
+        except URLError as exc:
+            console.print(f'[bold red]Connection failed:[/bold red] {exc.reason}')
+            return None
+        except TimeoutError:
+            console.print('[bold red]Connection timed out.[/bold red]')
+            return None
+        except json.JSONDecodeError:
+            console.print('[bold red]Server returned invalid JSON.[/bold red]')
             return None
 
         result = 'FOUND ✅' if success else 'no match'
@@ -78,18 +108,19 @@ def crack_password(
         if success:
             console.print(
                 Panel.fit(
-                    f'[bold green]Password found:[/bold green] [yellow]{word}[/yellow]\n'
+                    f'[bold green]🎉 Password found:[/bold green] '
+                    f'[yellow]{word}[/yellow]\n'
                     'Weak passwords are easy for computers to guess.',
                     title='Demo Result',
                 )
             )
             return word
 
-        time.sleep(delay)
+        time.sleep(max(delay, 0.0))
 
     console.print(
         Panel.fit(
-            '[bold red]Password not found in demo wordlist.[/bold red]',
+            '[bold red]❌ Password not found in demo wordlist.[/bold red]',
             title='Demo Result',
         )
     )
